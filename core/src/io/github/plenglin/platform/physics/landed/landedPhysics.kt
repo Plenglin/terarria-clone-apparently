@@ -3,7 +3,6 @@ package io.github.plenglin.platform.physics.landed
 import com.badlogic.gdx.math.Vector2
 import io.github.plenglin.platform.Block
 import io.github.plenglin.platform.physics.landed.entity.LandedEntity
-import javax.swing.text.html.parser.Entity
 
 /**
  * A planet.
@@ -57,13 +56,39 @@ class World(val circumference: Int) {
 
     }
 
-    fun possibleCollisions() {
-        //entities.
+    fun getCollisions(): List<Collision> {
+        val tested = mutableMapOf<LandedEntity, MutableList<LandedEntity>>().withDefault { mutableListOf() }
+        val collisions = mutableListOf<Collision>()
+        for (e in entities) {
+            val collidesWith = e.findCollisions(tested[e]!!)
+            for (o in collidesWith) {
+                collisions += Collision(e, o)
+                tested.put(o, (tested[o]!! + collidesWith).toMutableList())
+            }
+        }
+        return collisions
     }
 
     fun addEntity(entity: LandedEntity) {
         entities += entity
         entity.world = this
+    }
+
+}
+
+class Collision(val a: LandedEntity, val b: LandedEntity) {
+
+    override fun equals(other: Any?): Boolean {
+        if (other is Collision) {
+            return (this.a == other.a && this.b == other.b) || (this.a == other.b && this.b == other.a)
+        }
+        return false
+    }
+
+    override fun hashCode(): Int {
+        var result = a.hashCode()
+        result = 31 * result + b.hashCode()
+        return result
     }
 
 }

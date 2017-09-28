@@ -31,13 +31,13 @@ abstract class LandedEntity {
 
     var world: World? = null
 
-    fun possibleCollisions(alreadyTested: List<LandedEntity>): List<LandedEntity> {
+    fun findCollisions(alreadyTested: List<LandedEntity> = listOf()): List<LandedEntity> {
         val ents = mutableListOf<LandedEntity>()
 
         val toTest = chunk?.surroundingChunks()?.flatMap { it.entities }
 
         toTest?.forEach {
-            if (it == this || !this.canCollideWith(it)) {
+            if (it in alreadyTested || it == this || !this.canCollideWith(it)) {
                 return@forEach
             }
             if (this.isCollidingWith(it)) {

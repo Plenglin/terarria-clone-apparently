@@ -12,6 +12,7 @@ class World(val circumference: Int) {
 
     val chunks = Array<Array<Chunk>>(circumference, { x -> Array(worldHeight, { y -> Chunk(this, x, y) })})
 
+    internal val collisionListeners = mutableListOf<(Collision) -> Unit>()
     internal val entities: MutableList<LandedEntity> = mutableListOf()
 
     fun wrapCoords(x: Int): Int {
@@ -53,7 +54,10 @@ class World(val circumference: Int) {
     }
 
     fun update(delta: Float) {
-
+        val collisions = getCollisions()
+        for (c in collisions) {
+            collisionListeners.forEach { it(c) }
+        }
     }
 
     fun getCollisions(): List<Collision> {

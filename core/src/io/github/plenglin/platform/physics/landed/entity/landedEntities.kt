@@ -49,7 +49,7 @@ abstract class LandedEntity {
 
 }
 
-class FreeMovingEntity(world: World, val radius: Float) : LandedEntity() {
+abstract class FreeMovingEntity(val radius: Float) : LandedEntity() {
     override fun isCollidingWith(other: LandedEntity): Boolean {
         when (other) {
             is FreeMovingEntity -> return this.pos.cpy().sub(other.pos).len2() <= radius*radius
@@ -62,7 +62,7 @@ class FreeMovingEntity(world: World, val radius: Float) : LandedEntity() {
 
 }
 
-class PlatformableEntity(val width: Float, val height: Float) : LandedEntity() {
+abstract class PlatformableEntity(val width: Float, val height: Float) : LandedEntity() {
 
     fun Rectangle.corners(): List<Vector2> {
         return listOf(

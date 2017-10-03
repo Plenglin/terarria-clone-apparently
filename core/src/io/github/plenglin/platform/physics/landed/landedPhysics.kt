@@ -39,6 +39,9 @@ class World(val circumference: Int) {
         return coordsToChunk(p.x, p.y)
     }
 
+    /**
+     * Gets the block at the specified coordinate.
+     */
     operator fun get(x: Int, y: Int): Block? {
         val ch = coordsToChunk(x, y)
         return ch[Math.floorMod(x, Chunk.length), Math.floorMod(y, Chunk.length)]
@@ -53,11 +56,32 @@ class World(val circumference: Int) {
         val worldHeight = 16
     }
 
+    val gravity: Float = 9.81f
+
     fun update(delta: Float) {
-        val collisions = getCollisions()
+        entities.forEach {
+            when (it.hasLanded) {
+                false -> {
+                    println(this[100, 192])
+                    it.velocity.y -= gravity * delta
+                    if (it.getBlockAtFoot() != null) {
+                        it.hasLanded = true
+                        it.pos.y = Math.floor(it.pos.y.toDouble()).toFloat()
+                        it.velocity.y = 0f
+                    }
+                }
+                true -> {
+                    if (it.getBlockAtFoot() == null) {
+                        it.hasLanded = false
+                    }
+                }
+            }
+            it.pos.add(it.velocity.cpy().scl(delta))
+        }
+        /*val collisions = getCollisions()
         for (c in collisions) {
             collisionListeners.forEach { it(c) }
-        }
+        }*/
     }
 
     fun getCollisions(): List<Collision> {

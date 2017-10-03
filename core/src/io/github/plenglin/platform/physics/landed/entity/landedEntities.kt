@@ -3,13 +3,21 @@ package io.github.plenglin.platform.physics.landed.entity
 import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
 import com.sun.javafx.geom.Vec2d
+import io.github.plenglin.platform.Block
 import io.github.plenglin.platform.physics.landed.Chunk
 import io.github.plenglin.platform.physics.landed.World
 
 
 abstract class LandedEntity {
 
+    /**
+     * Its position at its foot.
+     */
     val pos: Vector2 = Vector2(0f, 0f)
+
+    /**
+     * How fast it is moving relative to the planet.
+     */
     val velocity: Vector2 = Vector2(0f, 0f)
 
     var mass: Float = 0f
@@ -45,6 +53,10 @@ abstract class LandedEntity {
             }
         }
         return ents
+    }
+
+    fun getBlockAtFoot(): Block? {
+        return world?.get(pos.x.toInt(), pos.y.toInt())
     }
 
 }

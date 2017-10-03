@@ -1,7 +1,6 @@
 package io.github.plenglin.platform
 
-import com.badlogic.gdx.Gdx
-import com.badlogic.gdx.Screen
+import com.badlogic.gdx.*
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.OrthographicCamera
@@ -23,11 +22,15 @@ class GameScreen : Screen {
     var player = Player()
     var world = World(64)
 
+    val ip = PlayerInputProcessor()
+
     override fun show() {
+        Gdx.input.inputProcessor = InputMultiplexer(ip)
+
         cam = OrthographicCamera()
         shape = ShapeRenderer()
         player.pos.set(100f, 256f)
-        for (x in 0..4095) {
+        for (x in 95..4095) {
             for (y in 0..192) {
                 world[x, y] = Block.dirt
             }
@@ -39,6 +42,7 @@ class GameScreen : Screen {
         cam.position.set(Vector3(player.pos, 0f))
         cam.zoom = 1/10f
         cam.update()
+        player.velocity.x = ip.moving * 1
         println(player.pos)
 
         Gdx.gl20.glClearColor(0f, 0f ,0f, 1f)
@@ -48,8 +52,8 @@ class GameScreen : Screen {
 
         shape.begin(ShapeRenderer.ShapeType.Filled)
         shape.color = Color.WHITE
-        for (i in (player.pos.x.toInt()-10)..(player.pos.x.toInt()+10)) {
-            for (j in (player.pos.y.toInt()-10)..(player.pos.y.toInt()+10)) {
+        for (i in (player.pos.x.toInt()-30)..(player.pos.x.toInt()+30)) {
+            for (j in (player.pos.y.toInt()-30)..(player.pos.y.toInt()+30)) {
                 val x = i.toFloat()
                 val y = j.toFloat()
                 if (world[i, j] != null) {
@@ -83,6 +87,60 @@ class GameScreen : Screen {
 
     override fun dispose() {
 
+    }
+
+}
+
+class PlayerInputProcessor : InputProcessor {
+
+    var moving = 0f
+
+    override fun touchUp(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
+        return false
+    }
+
+    override fun mouseMoved(screenX: Int, screenY: Int): Boolean {
+        return false
+    }
+
+    override fun keyTyped(character: Char): Boolean {
+        return false
+    }
+
+    override fun scrolled(amount: Int): Boolean {
+        return false
+    }
+
+    override fun keyUp(keycode: Int): Boolean {
+        return when (keycode) {
+            Input.Keys.A, Input.Keys.D -> {
+                moving = 0f
+                true
+            }
+            else -> false
+        }
+    }
+
+    override fun touchDragged(screenX: Int, screenY: Int, pointer: Int): Boolean {
+        return false
+    }
+
+    override fun keyDown(keycode: Int): Boolean {
+        return when (keycode) {
+            Input.Keys.A -> {
+                moving = -1f
+                true
+            }
+            Input.Keys.D -> {
+                moving = 1f
+                true
+            }
+            else -> false
+        }
+    }
+
+    override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
+        return false
     }
 
 }

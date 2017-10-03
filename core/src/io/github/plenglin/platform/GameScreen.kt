@@ -5,16 +5,13 @@ import com.badlogic.gdx.Screen
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.OrthographicCamera
-import com.badlogic.gdx.graphics.g2d.Sprite
-import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
-import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.math.Vector3
 import io.github.plenglin.platform.physics.landed.World
 import io.github.plenglin.platform.physics.landed.entity.Player
 
 /**
- *
+ * Primary screen for displaying the game.
  */
 class GameScreen : Screen {
     //lateinit var batch: SpriteBatch
@@ -52,20 +49,20 @@ class GameScreen : Screen {
         shape.begin(ShapeRenderer.ShapeType.Filled)
         shape.color = Color.WHITE
         for (i in (player.pos.x.toInt()-10)..(player.pos.x.toInt()+10)) {
-            for (j in (player.pos.x.toInt()-10)..(player.pos.x.toInt()+10)) {
+            for (j in (player.pos.y.toInt()-10)..(player.pos.y.toInt()+10)) {
                 val x = i.toFloat()
                 val y = j.toFloat()
                 if (world[i, j] != null) {
-                    shape.rect(x, y, x+1, y+1);
+                    shape.rect(x, y, 1f, -1f)
                 }
             }
         }
 
         shape.color = Color.BLUE
-        shape.circle(player.pos.x, player.pos.y, 1f);
+        shape.rect(player.pos.x, player.pos.y, 1f, 2f)
         shape.end()
 
-        world.update(delta)
+        world.update(minOf(delta, 1/60f))
     }
 
     override fun pause() {

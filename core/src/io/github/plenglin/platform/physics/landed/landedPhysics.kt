@@ -62,7 +62,6 @@ class World(val circumference: Int) {
         entities.forEach {
             when (it.hasLanded) {
                 false -> {
-                    println(this[100, 192])
                     it.velocity.y -= gravity * delta
                     if (it.getBlockAtFoot() != null) {
                         it.hasLanded = true

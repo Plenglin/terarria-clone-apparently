@@ -22,7 +22,7 @@ class GameScreen : Screen {
     var player = Player()
     var world = World(64)
 
-    val ip = PlayerInputProcessor()
+    val ip = PlayerInputProcessor(this)
 
     override fun show() {
         Gdx.input.inputProcessor = InputMultiplexer(ip)
@@ -36,14 +36,13 @@ class GameScreen : Screen {
             }
         }
         world.addEntity(player)
+        cam.zoom = 1/10f
     }
 
     override fun render(delta: Float) {
         cam.position.set(Vector3(player.pos, 0f))
-        cam.zoom = 1/10f
         cam.update()
         player.velocity.x = ip.moving * 1
-        println(player.pos)
 
         Gdx.gl20.glClearColor(0f, 0f ,0f, 1f)
         Gdx.gl20.glClear(GL20.GL_COLOR_BUFFER_BIT or GL20.GL_DEPTH_BUFFER_BIT)
@@ -91,7 +90,7 @@ class GameScreen : Screen {
 
 }
 
-class PlayerInputProcessor : InputProcessor {
+class PlayerInputProcessor(val game: GameScreen) : InputProcessor {
 
     var moving = 0f
 
@@ -108,7 +107,12 @@ class PlayerInputProcessor : InputProcessor {
     }
 
     override fun scrolled(amount: Int): Boolean {
-        return false
+        if (amount > 0) {
+            game.cam.zoom *= 0.9f
+        } else if (amount < 0) {
+            game.cam.zoom /= 0.9f
+        }
+        return true
     }
 
     override fun keyUp(keycode: Int): Boolean {
@@ -135,12 +139,35 @@ class PlayerInputProcessor : InputProcessor {
                 moving = 1f
                 true
             }
+            Input.Keys.SPACE -> {
+                if (game.player.hasLanded) {
+                    game.player.velocity.add(0f, 10f)
+                }
+                true
+            }
             else -> false
         }
     }
 
     override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
-        return false
+        return when (button) {
+            Input.Buttons.LEFT -> {  // Destroy block
+                val unprojected = game.cam.unproject(Vector3(screenX.toFloat(), screenY.toFloat(), 0f))
+                println(unprojected)
+                val i = unprojected.x.toInt()
+                val j = unprojected.y.toInt() + 1
+                game.world[i, j] = null
+                true
+            }
+            Input.Buttons.RIGHT -> {  // Place block
+                val unprojected = game.cam.unproject(Vector3(screenX.toFloat(), screenY.toFloat(), 0f))
+                val i = unprojected.x.toInt()
+                val j = unprojected.y.toInt() + 1
+                game.world[i, j] = Block.dirt
+                true
+            }
+            else -> false
+        }
     }
 
 }
